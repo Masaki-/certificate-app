@@ -1,7 +1,13 @@
 {
+    "name": "certificate-app",
+    "version": "1.0.0",
+    "main": "server.js",
+    "scripts": {
+      "start": "node server.js"
+    },
     "dependencies": {
-      "puppeteer-core": "^10.2.0",
-      "chrome-aws-lambda": "^10.1.0"
+      "express": "^4.18.2",
+      "canvas": "^2.11.2"  
     }
   }
   
