@@ -4,8 +4,7 @@ const chrome = require("chrome-aws-lambda");
 module.exports = async (req, res) => {
   const { name = "受講者" } = req.query;
 
-  const html = `
-    <html>
+  const html = `<html>
       <head>
         <meta charset="UTF-8">
         <style>
@@ -32,13 +31,16 @@ module.exports = async (req, res) => {
       <body>
         <div class="name">${decodeURIComponent(name)}</div>
       </body>
-    </html>
-  `;
+    </html>`; // HTML部はそのままでOK
+
+  const executablePath =
+    (await chrome.executablePath) || "/usr/bin/chromium-browser";
 
   const browser = await puppeteer.launch({
     args: chrome.args,
-    executablePath: await chrome.executablePath,
+    executablePath,
     headless: chrome.headless,
+    ignoreDefaultArgs: ["--disable-extensions"],
   });
 
   const page = await browser.newPage();
