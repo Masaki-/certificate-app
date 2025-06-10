@@ -1,12 +1,25 @@
-<style>
-  body {
-    width: 1200px;
-    height: 800px;
-    font-family: "Noto Sans JP", sans-serif;
-    background: url("/assets/certificate-template.png") no-repeat center center;
-    background-size: cover;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-</style>
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      body {
+        width: 1200px;
+        height: 800px;
+        margin: 0;
+        font-family: "Noto Sans JP", sans-serif;
+        background: #f9f9f9;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .name {
+        font-size: 48px;
+        color: #333;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="name">{{name}}</div>
+  </body>
+</html>

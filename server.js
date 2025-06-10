@@ -1,24 +1,34 @@
 const express = require("express");
-const { createCanvas, loadImage } = require("canvas");
+const puppeteer = require("puppeteer");
+const fs = require("fs");
+const path = require("path");
+
 const app = express();
+const PORT = process.env.PORT || 3000;
 
 app.get("/certificate", async (req, res) => {
-  const name = req.query.name || "受講者";
+  const name = decodeURIComponent(req.query.name || "受講者");
 
-  const canvas = createCanvas(1200, 800);
-  const ctx = canvas.getContext("2d");
+  // HTMLテンプレート読み込み & 変数差し替え
+  const htmlPath = path.join(__dirname, "templates", "certificate.html");
+  const template = fs.readFileSync(htmlPath, "utf8").replace("{{name}}", name);
 
-  const bg = await loadImage(__dirname + "/assets/certificate-template.png");
-  ctx.drawImage(bg, 0, 0, 1200, 800);
+  const browser = await puppeteer.launch({
+    headless: "new", // puppeteer@20以降で推奨
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+  });
 
-  ctx.font = "bold 48px sans-serif";
-  ctx.fillStyle = "#333";
-  ctx.fillText(decodeURIComponent(name), 500, 400);
+  const page = await browser.newPage();
+  await page.setViewport({ width: 1200, height: 800 });
+  await page.setContent(template, { waitUntil: "networkidle0" });
+
+  const imageBuffer = await page.screenshot({ type: "png" });
+  await browser.close();
 
   res.setHeader("Content-Type", "image/png");
-  canvas.pngStream().pipe(res);
+  res.send(imageBuffer);
 });
 
-app.listen(3000, () => {
-  console.log("Listening on port 3000");
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
 });
