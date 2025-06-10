@@ -5,10 +5,16 @@ module.exports = async (req, res) => {
   try {
     const { name = "受講者" } = req.query;
 
+    const executablePath = await chrome.executablePath;
+
+    if (!executablePath) {
+      console.error("executablePath is null. Chrome not available.");
+      return res.status(500).send("Chrome not available in this environment.");
+    }
+
     const browser = await puppeteer.launch({
       args: chrome.args,
-      executablePath:
-        (await chrome.executablePath) || "/usr/bin/chromium-browser",
+      executablePath,
       headless: chrome.headless,
     });
 
@@ -30,6 +36,6 @@ module.exports = async (req, res) => {
     res.send(buffer);
   } catch (err) {
     console.error("Function error:", err);
-    res.status(500).send("Internal Server Error");
+    res.status(500).send("Internal Server Error: " + err.message);
   }
 };
