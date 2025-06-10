@@ -2,7 +2,8 @@
     "name": "certificate-app",
     "version": "1.0.0",
     "dependencies": {
-      "canvas": "^2.11.2"
+      "puppeteer-core": "^10.2.0",
+      "chrome-aws-lambda": "^10.1.0"
     }
   }
   
