@@ -1,34 +1,52 @@
-const express = require("express");
-const puppeteer = require("puppeteer");
-const fs = require("fs");
-const path = require("path");
-
+const express = require('express');
+const puppeteer = require('puppeteer');
 const app = express();
-const PORT = process.env.PORT || 3000;
 
-app.get("/certificate", async (req, res) => {
-  const name = decodeURIComponent(req.query.name || "受講者");
+app.get('/certificate', async (req, res) => {
+  const name = req.query.name || "受講者";
 
-  // HTMLテンプレート読み込み & 変数差し替え
-  const htmlPath = path.join(__dirname, "templates", "certificate.html");
-  const template = fs.readFileSync(htmlPath, "utf8").replace("{{name}}", name);
+  const html = `
+    <html>
+      <head>
+        <meta charset="UTF-8">
+        <style>
+          body {
+            width: 1200px;
+            height: 800px;
+            margin: 0;
+            font-family: 'Noto Sans JP', sans-serif;
+            background: #f2f2f2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+          }
+          .name {
+            font-size: 48px;
+            color: #333;
+            text-align: center;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="name">${name}</div>
+      </body>
+    </html>
+  `;
 
-  const browser = await puppeteer.launch({
-    headless: "new", // puppeteer@20以降で推奨
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
-  });
-
+  const browser = await puppeteer.launch({ headless: "new" });
   const page = await browser.newPage();
   await page.setViewport({ width: 1200, height: 800 });
-  await page.setContent(template, { waitUntil: "networkidle0" });
+  await page.setContent(html, { waitUntil: "networkidle0" });
 
-  const imageBuffer = await page.screenshot({ type: "png" });
+  const buffer = await page.screenshot({ type: 'png' });
   await browser.close();
 
-  res.setHeader("Content-Type", "image/png");
-  res.send(imageBuffer);
+  res.setHeader('Content-Disposition', 'attachment; filename=certificate.png');
+  res.setHeader('Content-Type', 'image/png');
+  res.send(buffer);
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+  console.log(`Listening on port ${port}`);
 });
